@@ -1,7 +1,7 @@
 {
 	"name": "typescript-rest-api-pzn-1",
 	"version": "1.0.0",
-	"main": "web.ts",
+	"main": "app.ts",
 	"scripts": {
 		"test": "jest"
 	},
