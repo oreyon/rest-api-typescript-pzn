@@ -77,3 +77,34 @@ describe('POST /api/v1/users/login', () => {
 		expect(response.body.errors).toBeDefined();
 	});
 });
+
+describe('GET /api/v1/users/current', () => {
+	beforeEach(async () => {
+		await UserTest.create();
+	});
+
+	afterEach(async () => {
+		await UserTest.delete();
+	});
+
+	it('should be able to get current user', async () => {
+		const response = await supertest(app)
+			.get('/api/v1/users/current')
+			.set('X-API-TOKEN', 'example');
+
+		logger.debug(response.body);
+		expect(response.status).toBe(200);
+		expect(response.body.data.username).toBe('example');
+		expect(response.body.data.name).toBe('example');
+	});
+
+	it('should reject get user if token is invalid', async () => {
+		const response = await supertest(app)
+			.get('/api/v1/users/current')
+			.set('X-API-TOKEN', 'passwordsalah');
+
+		logger.debug(response.body);
+		expect(response.status).toBe(401);
+		expect(response.body.errors).toBeDefined();
+	});
+});

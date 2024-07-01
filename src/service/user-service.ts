@@ -11,6 +11,7 @@ import { ResponseError } from '../error/response-error';
 import bcrypt from 'bcrypt';
 import { v4 as uuid } from 'uuid';
 import { response } from 'express';
+import { User } from '@prisma/client';
 export class UserService {
 	static async register(request: CreateUserRequest): Promise<UserResponse> {
 		// Validate the request using the UserValidation.REGISTER schema
@@ -76,5 +77,9 @@ export class UserService {
 		const response = toUserResponse(user);
 		response.token = user.token!;
 		return response;
+	}
+
+	static async getCurrentUser(user: User): Promise<UserResponse> {
+		return toUserResponse(user);
 	}
 }
