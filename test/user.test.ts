@@ -2,6 +2,7 @@ import supertest from 'supertest';
 import { app } from '../src/application/app';
 import { logger } from '../src/application/logging';
 import { UserTest } from './test-util';
+import bycript from 'bcrypt';
 
 describe('POST /api/v1/users', () => {
 	afterEach(async () => {
@@ -101,10 +102,76 @@ describe('GET /api/v1/users/current', () => {
 	it('should reject get user if token is invalid', async () => {
 		const response = await supertest(app)
 			.get('/api/v1/users/current')
-			.set('X-API-TOKEN', 'passwordsalah');
+			.set('X-API-TOKEN', 'wrongtoken');
 
 		logger.debug(response.body);
 		expect(response.status).toBe(401);
 		expect(response.body.errors).toBeDefined();
+	});
+});
+
+describe('PATCH /api/v1/users/current', () => {
+	beforeEach(async () => {
+		await UserTest.create();
+	});
+
+	afterEach(async () => {
+		await UserTest.delete();
+	});
+
+	it('should reject update user if request is invalid', async () => {
+		const response = await supertest(app)
+			.patch('/api/v1/users/current')
+			.set('X-API-TOKEN', 'example')
+			.send({
+				name: '',
+				password: '',
+			});
+
+		logger.debug(response.body);
+		expect(response.status).toBe(400);
+		expect(response.body.errors).toBeDefined();
+	});
+
+	it('should reject update user if request token is wrong', async () => {
+		const response = await supertest(app)
+			.patch('/api/v1/users/current')
+			.set('X-API-TOKEN', 'wrongtoken')
+			.send({
+				name: 'example',
+				password: 'example',
+			});
+
+		logger.debug(response.body);
+		expect(response.status).toBe(401);
+		expect(response.body.errors).toBeDefined();
+	});
+
+	it('should be able to be update username', async () => {
+		const response = await supertest(app)
+			.patch('/api/v1/users/current')
+			.set('X-API-TOKEN', 'example')
+			.send({
+				name: 'example',
+			});
+
+		logger.debug(response.body);
+		expect(response.status).toBe(200);
+		expect(response.body.data.username).toBe('example');
+	});
+
+	it('should be able to be update password', async () => {
+		const response = await supertest(app)
+			.patch('/api/v1/users/current')
+			.set('X-API-TOKEN', 'example')
+			.send({
+				password: 'exampleTest',
+			});
+
+		logger.debug(response.body);
+		expect(response.status).toBe(200);
+
+		const user = await UserTest.getDataUser();
+		expect(await bycript.compare('exampleTest', user.password)).toBe(true);
 	});
 });

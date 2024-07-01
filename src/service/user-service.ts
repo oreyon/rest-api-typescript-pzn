@@ -1,6 +1,7 @@
 import {
 	CreateUserRequest,
 	LoginUserRequest,
+	UpdateUserRequest,
 	UserResponse,
 	toUserResponse,
 } from '../model/user-model';
@@ -81,5 +82,34 @@ export class UserService {
 
 	static async getCurrentUser(user: User): Promise<UserResponse> {
 		return toUserResponse(user);
+	}
+
+	static async updateUser(
+		user: User,
+		request: UpdateUserRequest
+	): Promise<UserResponse> {
+		// validate the request using the UserValidation.UPDATE schema
+		const updateRequest = Validation.validate(UserValidation.UPDATE, request);
+
+		// check if the name is provided
+		if (updateRequest.name) {
+			user.name = await updateRequest.name;
+		}
+
+		// check if the password is provided
+		if (updateRequest.password) {
+			user.password = await bcrypt.hash(updateRequest.password, 10);
+		}
+
+		// update the user
+		const result = await prismaClient.user.update({
+			where: {
+				username: user.username,
+			},
+			data: user,
+		});
+
+		// will be remove redline under Promise<UserResponse>
+		return toUserResponse(result);
 	}
 }
