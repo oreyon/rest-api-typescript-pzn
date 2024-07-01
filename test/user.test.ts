@@ -175,3 +175,36 @@ describe('PATCH /api/v1/users/current', () => {
 		expect(await bycript.compare('exampleTest', user.password)).toBe(true);
 	});
 });
+
+describe('DELETE /api/v1/users/current', () => {
+	beforeEach(async () => {
+		await UserTest.create();
+	});
+
+	afterEach(async () => {
+		await UserTest.delete();
+	});
+
+	it('should be able to logout', async () => {
+		const response = await supertest(app)
+			.delete('/api/v1/users/current')
+			.set('X-API-TOKEN', 'example');
+
+		logger.debug(response.body);
+		expect(response.status).toBe(200);
+		expect(response.body.data).toBe('Logout Success');
+
+		const user = await UserTest.getDataUser();
+		expect(user.token).toBeNull();
+	});
+
+	it('should reject logout user if token is wrong', async () => {
+		const response = await supertest(app)
+			.delete('/api/v1/users/current')
+			.set('X-API-TOKEN', 'wrongtoken');
+
+		logger.debug(response.body);
+		expect(response.status).toBe(401);
+		expect(response.body.errors).toBeDefined();
+	});
+});
