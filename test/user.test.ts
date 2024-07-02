@@ -4,13 +4,13 @@ import { logger } from '../src/application/logging';
 import { UserTest } from './test-util';
 import bycript from 'bcrypt';
 
-describe('POST /api/v1/users', () => {
+describe('POST /api/v1/users/register', () => {
 	afterEach(async () => {
 		await UserTest.delete();
 	});
 
 	it('should reject register new user if request is invalid', async () => {
-		const response = await supertest(app).post('/api/v1/users').send({
+		const response = await supertest(app).post('/api/v1/users/register').send({
 			username: '',
 			password: '',
 			name: '',
@@ -22,7 +22,7 @@ describe('POST /api/v1/users', () => {
 	});
 
 	it('should register new user', async () => {
-		const response = await supertest(app).post('/api/v1/users').send({
+		const response = await supertest(app).post('/api/v1/users/register').send({
 			username: 'example',
 			password: 'example',
 			name: 'example',
