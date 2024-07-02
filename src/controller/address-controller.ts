@@ -109,4 +109,28 @@ export class AddressController {
 			next(e);
 		}
 	}
+
+	static async listAddressContact(
+		req: UserRequest,
+		res: Response,
+		next: NextFunction
+	) {
+		try {
+			const contactId = Number(req.params.contactId);
+
+			const response = await AddressService.listAddressContact(
+				req.user!,
+				contactId
+			);
+
+			res.status(200).json({
+				code: 200,
+				status: 'success',
+				message: 'List address',
+				data: response,
+			});
+		} catch (e) {
+			next(e);
+		}
+	}
 }

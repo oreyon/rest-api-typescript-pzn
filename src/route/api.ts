@@ -51,3 +51,8 @@ apiRouter.delete(
 	'/api/v1/contacts/:contactId(\\d+)/addresses/:addressId(\\d+)',
 	AddressController.removeAddressContact
 );
+
+apiRouter.get(
+	'/api/v1/contacts/:contactId(\\d+)/addresses',
+	AddressController.listAddressContact
+);

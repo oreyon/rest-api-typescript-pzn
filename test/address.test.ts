@@ -295,3 +295,44 @@ describe('DELETE /api/v1/contacts/:contactId/addresses/:addressId', () => {
 		expect(response.body.errors).toBeDefined();
 	});
 });
+
+describe('GET /api/v1/contacts/:contactId/addresses', () => {
+	beforeEach(async () => {
+		await UserTest.create();
+		await ContactTest.create();
+		await AddressTest.create();
+	});
+
+	afterEach(async () => {
+		await AddressTest.deleteAll();
+		await ContactTest.deleteAll();
+		await UserTest.delete();
+	});
+
+	it('should be able to list addresses', async () => {
+		const contact = await ContactTest.get();
+
+		const response = await supertest(app)
+			.get(`/api/v1/contacts/${contact.id}/addresses`)
+			.set('X-API-TOKEN', 'example');
+
+		logger.debug(response.body);
+		expect(response.status).toBe(200);
+		expect(response.body.code).toBe(200);
+		expect(response.body.status).toBe('success');
+		expect(response.body.message).toBe('List address');
+		expect(response.body.data.length).toBe(1);
+	});
+
+	it('should reject list address if contact is not found', async () => {
+		const contact = await ContactTest.get();
+
+		const response = await supertest(app)
+			.get(`/api/v1/contacts/${contact.id + 1}/addresses`)
+			.set('X-API-TOKEN', 'example');
+
+		logger.debug(response.body);
+		expect(response.status).toBe(404);
+		expect(response.body.errors).toBeDefined();
+	});
+});
