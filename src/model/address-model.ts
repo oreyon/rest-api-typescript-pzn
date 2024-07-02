@@ -18,6 +18,16 @@ export type CreateAddressRequest = {
 	postalCode: string;
 };
 
+export type UpdateAddressRequest = {
+	id: number;
+	contactId: number;
+	street?: string | null;
+	city?: string | null;
+	province?: string | null;
+	country: string;
+	postalCode: string;
+};
+
 export type GetAddressRequest = {
 	contactId: number;
 	id: number;
