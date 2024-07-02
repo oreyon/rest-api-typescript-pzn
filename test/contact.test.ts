@@ -2,6 +2,7 @@ import supertest from 'supertest';
 import { app } from '../src/application/app';
 import { logger } from '../src/application/logging';
 import { ContactTest, UserTest } from './test-util';
+import e from 'express';
 
 describe('POST /api/v1/contacts', () => {
 	beforeEach(async () => {
@@ -79,6 +80,97 @@ describe('GET /api/v1/contacts/:contactId', () => {
 		const contact = await ContactTest.get();
 		const response = await supertest(app)
 			.get(`/api/v1/contacts/${contact.id + 1}`)
+			.set('X-API-TOKEN', 'example');
+
+		logger.debug(response.body);
+		expect(response.status).toBe(404);
+		expect(response.body.errors).toBeDefined();
+	});
+});
+
+describe('PUT /api/v1/contacts/:contactId', () => {
+	beforeEach(async () => {
+		await UserTest.create();
+		await ContactTest.create();
+	});
+
+	afterEach(async () => {
+		await ContactTest.deleteAll();
+		await UserTest.delete();
+	});
+
+	it('should be able to update contact by id', async () => {
+		const contact = await ContactTest.get();
+		const response = await supertest(app)
+			.put(`/api/v1/contacts/${contact.id}`)
+			.set('X-API-TOKEN', 'example')
+			.send({
+				firstName: 'example',
+				lastName: 'example',
+				email: 'example@example.com',
+				phone: '081234567890',
+			});
+
+		logger.debug(response.body);
+		expect(response.status).toBe(200);
+		expect(response.body.data.id).toBe(contact.id);
+		expect(response.body.data.firstName).toBe('example');
+		expect(response.body.data.lastName).toBe('example');
+		expect(response.body.data.email).toBe('example@example.com');
+		expect(response.body.data.phone).toBe('081234567890');
+	});
+
+	it('should reject update contact if request is invalid', async () => {
+		const contact = await ContactTest.get();
+		const response = await supertest(app)
+			.put(`/api/v1/contacts/${contact.id}`)
+			.set('X-API-TOKEN', 'example')
+			.send({
+				firstName: '',
+				lastName: '',
+				email: 'example',
+				phone: '',
+			});
+
+		logger.debug(response.body);
+		expect(response.status).toBe(400);
+		expect(response.body.errors).toBeDefined();
+	});
+});
+
+describe('DELETE /api/v1/contacts/:contactId', () => {
+	beforeEach(async () => {
+		await UserTest.create();
+		await ContactTest.create();
+	});
+
+	afterEach(async () => {
+		await ContactTest.deleteAll();
+		await UserTest.delete();
+	});
+
+	it('should be able to delete contact by id', async () => {
+		const contact = await ContactTest.get();
+		const response = await supertest(app)
+			.delete(`/api/v1/contacts/${contact.id}`)
+			.set('X-API-TOKEN', 'example')
+			.send({
+				code: 200,
+				status: 'success',
+				message: 'Contact deleted successfully',
+			});
+
+		logger.debug(response.body);
+		expect(response.status).toBe(200);
+		expect(response.body.code).toBe(200);
+		expect(response.body.status).toBe('success');
+		expect(response.body.message).toBe('Contact deleted successfully');
+	});
+
+	it('should reject to delete contact if contact is not found', async () => {
+		const contact = await ContactTest.get();
+		const response = await supertest(app)
+			.delete(`/api/v1/contacts/${contact.id + 1}`)
 			.set('X-API-TOKEN', 'example');
 
 		logger.debug(response.body);

@@ -1,7 +1,8 @@
-import { User } from '@prisma/client';
+import { Contact, User } from '@prisma/client';
 import {
 	ContactResponse,
 	CreateContactRequest,
+	UpdateContactRequest,
 	toContactResponse,
 } from '../model/contact-model';
 import { ContactValidation } from '../validation/contact-validation';
@@ -40,20 +41,64 @@ export class ContactService {
 		return toContactResponse(contact);
 	}
 
-	static async getContactUser(
-		user: User,
-		id: number
-	): Promise<ContactResponse> {
+	static async checkContactMustExist(
+		username: string,
+		contactId: number
+	): Promise<Contact> {
 		const contact = await prismaClient.contact.findUnique({
 			where: {
-				id: id,
-				username: user.username,
+				id: contactId,
+				username: username,
 			},
 		});
 
 		if (!contact) {
 			throw new ResponseError(404, 'Contact not found');
 		}
+
+		return contact;
+	}
+
+	static async getContactUser(
+		user: User,
+		id: number
+	): Promise<ContactResponse> {
+		const contact = await this.checkContactMustExist(user.username, id);
+		return toContactResponse(contact);
+	}
+
+	static async updateContact(
+		user: User,
+		request: UpdateContactRequest
+	): Promise<ContactResponse> {
+		// validation process
+		const updateRequest = Validation.validate(
+			ContactValidation.UPDATE,
+			request
+		);
+
+		await this.checkContactMustExist(user.username, request.id);
+
+		const contact = await prismaClient.contact.update({
+			where: {
+				id: updateRequest.id,
+				username: user.username,
+			},
+			data: updateRequest,
+		});
+
+		return toContactResponse(contact);
+	}
+
+	static async removeContact(user: User, id: number): Promise<ContactResponse> {
+		await this.checkContactMustExist(user.username, id);
+
+		const contact = await prismaClient.contact.delete({
+			where: {
+				id: id,
+				username: user.username,
+			},
+		});
 
 		return toContactResponse(contact);
 	}

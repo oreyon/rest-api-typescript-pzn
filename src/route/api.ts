@@ -18,3 +18,12 @@ apiRouter.get(
 	'/api/v1/contacts/:contactId(\\d+)',
 	ContactController.getContactUser
 );
+apiRouter.put(
+	'/api/v1/contacts/:contactId(\\d+)',
+	ContactController.updateContactUser
+);
+
+apiRouter.delete(
+	'/api/v1/contacts/:contactId(\\d+)',
+	ContactController.removeContactUser
+);
