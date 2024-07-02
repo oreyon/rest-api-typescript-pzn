@@ -1,4 +1,4 @@
-import { Contact, User } from '@prisma/client';
+import { Address, Contact, User } from '@prisma/client';
 import { prismaClient } from '../src/application/database';
 import bycrypt from 'bcrypt';
 
@@ -84,5 +84,36 @@ export class AddressTest {
 				},
 			},
 		});
+	}
+
+	static async create() {
+		const contact = await ContactTest.get();
+
+		await prismaClient.address.create({
+			data: {
+				contactId: contact.id,
+				street: 'example street',
+				city: 'example city',
+				province: 'example province',
+				country: 'example country',
+				postalCode: '12345',
+			},
+		});
+	}
+
+	static async get(): Promise<Address> {
+		const address = await prismaClient.address.findFirst({
+			where: {
+				contact: {
+					username: 'example',
+				},
+			},
+		});
+
+		if (!address) {
+			throw new Error('Address not found');
+		}
+
+		return address;
 	}
 }

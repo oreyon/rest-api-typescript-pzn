@@ -2,8 +2,9 @@ import supertest from 'supertest';
 import { AddressTest, ContactTest, UserTest } from './test-util';
 import { app } from '../src/application/app';
 import { logger } from '../src/application/logging';
+import e from 'express';
 
-describe('POST /api/v1/:contactId/addresses', () => {
+describe('POST /api/v1/contacts/:contactId/addresses', () => {
 	beforeEach(async () => {
 		await UserTest.create();
 		await ContactTest.create();
@@ -18,7 +19,7 @@ describe('POST /api/v1/:contactId/addresses', () => {
 	it('should create be able to create address', async () => {
 		const contact = await ContactTest.get();
 		const response = await supertest(app)
-			.post(`/api/v1/${contact.id}/addresses`)
+			.post(`/api/v1/contacts/${contact.id}/addresses`)
 			.set('X-API-TOKEN', 'example')
 			.send({
 				street: 'example street',
@@ -44,7 +45,7 @@ describe('POST /api/v1/:contactId/addresses', () => {
 	it('should be reject create new address if request is invalid', async () => {
 		const contact = await ContactTest.get();
 		const response = await supertest(app)
-			.post(`/api/v1/${contact.id}/addresses`)
+			.post(`/api/v1/contacts/${contact.id}/addresses`)
 			.set('X-API-TOKEN', 'example')
 			.send({
 				street: 'example street',
@@ -62,7 +63,7 @@ describe('POST /api/v1/:contactId/addresses', () => {
 	it('should be reject create new address if contact is not found', async () => {
 		const contact = await ContactTest.get();
 		const response = await supertest(app)
-			.post(`/api/v1/${contact.id + 1}/addresses`)
+			.post(`/api/v1/contacts/${contact.id + 1}/addresses`)
 			.set('X-API-TOKEN', 'example')
 			.send({
 				street: 'example street',
@@ -71,6 +72,67 @@ describe('POST /api/v1/:contactId/addresses', () => {
 				country: 'example country',
 				postalCode: '12345',
 			});
+
+		logger.debug(response.body);
+		expect(response.status).toBe(404);
+		expect(response.body.errors).toBeDefined();
+	});
+});
+
+describe('GET /api/v1/contacts/:contactId/addresses/:addressId', () => {
+	beforeEach(async () => {
+		await UserTest.create();
+		await ContactTest.create();
+		await AddressTest.create();
+	});
+
+	afterEach(async () => {
+		await AddressTest.deleteAll();
+		await ContactTest.deleteAll();
+		await UserTest.delete();
+	});
+
+	it('should be able to get address', async () => {
+		const contact = await ContactTest.get();
+		const address = await AddressTest.get();
+
+		const response = await supertest(app)
+			.get(`/api/v1/contacts/${contact.id}/addresses/${address.id}`)
+			.set('X-API-TOKEN', 'example');
+
+		logger.debug(response.body);
+		expect(response.status).toBe(200);
+		expect(response.body.code).toBe(200);
+		expect(response.body.status).toBe('success');
+		expect(response.body.message).toBe('Address retrieved successfully');
+		expect(response.body.data.id).toBeDefined();
+		expect(response.body.data.street).toBe(address.street);
+		expect(response.body.data.city).toBe(address.city);
+		expect(response.body.data.province).toBe(address.province);
+		expect(response.body.data.country).toBe(address.country);
+		expect(response.body.data.postalCode).toBe(address.postalCode);
+	});
+
+	it('should reject get address if address is not found', async () => {
+		const contact = await ContactTest.get();
+		const address = await AddressTest.get();
+
+		const response = await supertest(app)
+			.get(`/api/v1/contacts/${contact.id}/addresses/${address.id + 1}`)
+			.set('X-API-TOKEN', 'example');
+
+		logger.debug(response.body);
+		expect(response.status).toBe(404);
+		expect(response.body.errors).toBeDefined();
+	});
+
+	it('should reject get address if contact is not found', async () => {
+		const contact = await ContactTest.get();
+		const address = await AddressTest.get();
+
+		const response = await supertest(app)
+			.get(`/api/v1/contacts/${contact.id + 1}/addresses/${address.id}`)
+			.set('X-API-TOKEN', 'example');
 
 		logger.debug(response.body);
 		expect(response.status).toBe(404);

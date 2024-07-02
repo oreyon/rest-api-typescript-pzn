@@ -33,6 +33,11 @@ apiRouter.get('/api/v1/contacts', ContactController.searchContactUser);
 
 // address api
 apiRouter.post(
-	'/api/v1/:contactId(\\d+)/addresses',
+	'/api/v1/contacts/:contactId(\\d+)/addresses',
 	AddressController.createAddressContact
+);
+
+apiRouter.get(
+	'/api/v1/contacts/:contactId(\\d+)/addresses/:addressId(\\d+)',
+	AddressController.getAddressContact
 );
