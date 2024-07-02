@@ -3,6 +3,7 @@ import {
 	AddressResponse,
 	CreateAddressRequest,
 	GetAddressRequest,
+	RemoveAddressRequest,
 	UpdateAddressRequest,
 	toAddressResponse,
 } from '../model/address-model';
@@ -103,6 +104,34 @@ export class AddressService {
 				contactId: updateRequest.contactId,
 			},
 			data: updateRequest,
+		});
+
+		return toAddressResponse(address);
+	}
+
+	static async removeAddressContact(
+		user: User,
+		request: RemoveAddressRequest
+	): Promise<AddressResponse> {
+		// validation
+		const removeRequest = Validation.validate(
+			AddressValidation.REMOVE,
+			request
+		);
+
+		// check contact must exist
+		await ContactService.checkContactMustExist(
+			user.username,
+			request.contactId
+		);
+
+		// check address must be exist
+		await this.checkAddressMustExist(removeRequest.contactId, removeRequest.id);
+
+		const address = await prismaClient.address.delete({
+			where: {
+				id: removeRequest.id,
+			},
 		});
 
 		return toAddressResponse(address);

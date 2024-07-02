@@ -2,7 +2,6 @@ import supertest from 'supertest';
 import { AddressTest, ContactTest, UserTest } from './test-util';
 import { app } from '../src/application/app';
 import { logger } from '../src/application/logging';
-import e from 'express';
 
 describe('POST /api/v1/contacts/:contactId/addresses', () => {
 	beforeEach(async () => {
@@ -235,6 +234,61 @@ describe('PUT api/v1/contacts/:contactId/addresses/:addressId', () => {
 				country: 'example country',
 				postalCode: '12345',
 			});
+
+		logger.debug(response.body);
+		expect(response.status).toBe(404);
+		expect(response.body.errors).toBeDefined();
+	});
+});
+
+describe('DELETE /api/v1/contacts/:contactId/addresses/:addressId', () => {
+	beforeEach(async () => {
+		await UserTest.create();
+		await ContactTest.create();
+		await AddressTest.create();
+	});
+
+	afterEach(async () => {
+		await AddressTest.deleteAll();
+		await ContactTest.deleteAll();
+		await UserTest.delete();
+	});
+
+	it('should be able to remove address', async () => {
+		const contact = await ContactTest.get();
+		const address = await AddressTest.get();
+
+		const response = await supertest(app)
+			.delete(`/api/v1/contacts/${contact.id}/addresses/${address.id}`)
+			.set('X-API-TOKEN', 'example');
+
+		logger.debug(response.body);
+		expect(response.status).toBe(200);
+		expect(response.body.code).toBe(200);
+		expect(response.body.status).toBe('success');
+		expect(response.body.message).toBe('Address deleted');
+	});
+
+	it('should reject remove address if address is not found', async () => {
+		const contact = await ContactTest.get();
+		const address = await AddressTest.get();
+
+		const response = await supertest(app)
+			.delete(`/api/v1/contacts/${contact.id}/addresses/${address.id + 1}`)
+			.set('X-API-TOKEN', 'example');
+
+		logger.debug(response.body);
+		expect(response.status).toBe(404);
+		expect(response.body.errors).toBeDefined();
+	});
+
+	it('should breject remove address if contact is not found ', async () => {
+		const contact = await ContactTest.get();
+		const address = await AddressTest.get();
+
+		const response = await supertest(app)
+			.delete(`/api/v1/contacts/${contact.id + 1}/addresses/${address.id}`)
+			.set('X-API-TOKEN', 'example');
 
 		logger.debug(response.body);
 		expect(response.status).toBe(404);
