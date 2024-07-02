@@ -22,4 +22,26 @@ export class ContactController {
 			next(e);
 		}
 	}
+
+	static async getContactUser(
+		req: UserRequest,
+		res: Response,
+		next: NextFunction
+	) {
+		try {
+			const contactId = Number(req.params.contactId);
+			const response = await ContactService.getContactUser(
+				req.user!,
+				contactId
+			);
+
+			// debugging with logger
+			// logger.debug('response : ' + JSON.stringify(response));
+			res.status(200).json({
+				data: response,
+			});
+		} catch (e) {
+			next(e);
+		}
+	}
 }

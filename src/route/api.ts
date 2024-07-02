@@ -13,3 +13,8 @@ apiRouter.delete('/api/v1/users/current', UserController.logout);
 
 // contact api
 apiRouter.post('/api/v1/contacts', ContactController.createContact);
+// \\d+ is a regular expression to match only numbers
+apiRouter.get(
+	'/api/v1/contacts/:contactId(\\d+)',
+	ContactController.getContactUser
+);

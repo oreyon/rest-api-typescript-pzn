@@ -8,6 +8,7 @@ import { ContactValidation } from '../validation/contact-validation';
 import { Validation } from '../validation/validation';
 import { prismaClient } from '../application/database';
 import { logger } from '../application/logging';
+import { ResponseError } from '../error/response-error';
 
 export class ContactService {
 	static async createContact(
@@ -36,6 +37,24 @@ export class ContactService {
 
 		// debugging with logger
 		// logger.debug(contact);
+		return toContactResponse(contact);
+	}
+
+	static async getContactUser(
+		user: User,
+		id: number
+	): Promise<ContactResponse> {
+		const contact = await prismaClient.contact.findUnique({
+			where: {
+				id: id,
+				username: user.username,
+			},
+		});
+
+		if (!contact) {
+			throw new ResponseError(404, 'Contact not found');
+		}
+
 		return toContactResponse(contact);
 	}
 }
