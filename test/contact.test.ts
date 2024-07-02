@@ -178,3 +178,116 @@ describe('DELETE /api/v1/contacts/:contactId', () => {
 		expect(response.body.errors).toBeDefined();
 	});
 });
+
+describe('GET /api/v1/contacts', () => {
+	beforeEach(async () => {
+		await UserTest.create();
+		await ContactTest.create();
+	});
+
+	afterEach(async () => {
+		await ContactTest.deleteAll();
+		await UserTest.delete();
+	});
+
+	it('should be able to search contacts', async () => {
+		const response = await supertest(app)
+			.get('/api/v1/contacts')
+			.set('X-API-TOKEN', 'example');
+
+		logger.debug(response.body);
+		expect(response.status).toBe(200);
+		expect(response.body.code).toBe(200);
+		expect(response.body.status).toBe('success');
+		expect(response.body.message).toBe('Search contact success');
+		expect(response.body.data.length).toBe(1);
+		expect(response.body.paging.currentPage).toBe(1);
+		expect(response.body.paging.totalPage).toBe(1);
+		expect(response.body.paging.size).toBe(10);
+	});
+
+	it('should be able to search contacts using name', async () => {
+		const response = await supertest(app)
+			.get('/api/v1/contacts')
+			.query({ name: 'mple' })
+			.set('X-API-TOKEN', 'example');
+
+		logger.debug(response.body);
+		expect(response.status).toBe(200);
+		expect(response.body.code).toBe(200);
+		expect(response.body.status).toBe('success');
+		expect(response.body.message).toBe('Search contact success');
+		expect(response.body.data.length).toBe(1);
+		expect(response.body.paging.currentPage).toBe(1);
+		expect(response.body.paging.totalPage).toBe(1);
+		expect(response.body.paging.size).toBe(10);
+	});
+
+	it('should be able to search contacts using email', async () => {
+		const response = await supertest(app)
+			.get('/api/v1/contacts')
+			.query({ email: 'example@example.com' })
+			.set('X-API-TOKEN', 'example');
+
+		logger.debug(response.body);
+		expect(response.status).toBe(200);
+		expect(response.body.code).toBe(200);
+		expect(response.body.status).toBe('success');
+		expect(response.body.message).toBe('Search contact success');
+		expect(response.body.data.length).toBe(1);
+		expect(response.body.paging.currentPage).toBe(1);
+		expect(response.body.paging.totalPage).toBe(1);
+		expect(response.body.paging.size).toBe(10);
+	});
+
+	it('should be able to search contacts using phone', async () => {
+		const response = await supertest(app)
+			.get('/api/v1/contacts')
+			.query({ phone: '78' })
+			.set('X-API-TOKEN', 'example');
+
+		logger.debug(response.body);
+		expect(response.status).toBe(200);
+		expect(response.body.code).toBe(200);
+		expect(response.body.status).toBe('success');
+		expect(response.body.message).toBe('Search contact success');
+		expect(response.body.data.length).toBe(1);
+		expect(response.body.paging.currentPage).toBe(1);
+		expect(response.body.paging.totalPage).toBe(1);
+		expect(response.body.paging.size).toBe(10);
+	});
+
+	it('should be able to search contact no result', async () => {
+		const response = await supertest(app)
+			.get('/api/v1/contacts')
+			.query({ name: 'wrongExample' })
+			.set('X-API-TOKEN', 'example');
+
+		logger.debug(response.body);
+		expect(response.status).toBe(200);
+		expect(response.body.code).toBe(200);
+		expect(response.body.status).toBe('success');
+		expect(response.body.message).toBe('Search contact success');
+		expect(response.body.data.length).toBe(0);
+		expect(response.body.paging.currentPage).toBe(1);
+		expect(response.body.paging.totalPage).toBe(0);
+		expect(response.body.paging.size).toBe(10);
+	});
+
+	it('should be able to search contact with paging', async () => {
+		const response = await supertest(app)
+			.get('/api/v1/contacts')
+			.query({ page: 2, size: 1 })
+			.set('X-API-TOKEN', 'example');
+
+		logger.debug(response.body);
+		expect(response.status).toBe(200);
+		expect(response.body.code).toBe(200);
+		expect(response.body.status).toBe('success');
+		expect(response.body.message).toBe('Search contact success');
+		expect(response.body.data.length).toBe(0);
+		expect(response.body.paging.currentPage).toBe(2);
+		expect(response.body.paging.totalPage).toBe(1);
+		expect(response.body.paging.size).toBe(1);
+	});
+});

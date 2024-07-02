@@ -27,3 +27,5 @@ apiRouter.delete(
 	'/api/v1/contacts/:contactId(\\d+)',
 	ContactController.removeContactUser
 );
+
+apiRouter.get('/api/v1/contacts', ContactController.searchContactUser);
