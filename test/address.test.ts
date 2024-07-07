@@ -16,10 +16,18 @@ describe('POST /api/v1/contacts/:contactId/addresses', () => {
 	});
 
 	it('should create be able to create address', async () => {
+		const { body, headers } = await supertest(app)
+			.post('/api/v1/users/login')
+			.send({
+				username: 'example',
+				password: 'example',
+			});
+		const cookies = headers['set-cookie'];
+
 		const contact = await ContactTest.get();
 		const response = await supertest(app)
 			.post(`/api/v1/contacts/${contact.id}/addresses`)
-			.set('X-API-TOKEN', 'example')
+			.set('Cookie', cookies)
 			.send({
 				street: 'example street',
 				city: 'example city',
@@ -42,10 +50,18 @@ describe('POST /api/v1/contacts/:contactId/addresses', () => {
 	});
 
 	it('should be reject create new address if request is invalid', async () => {
+		const { body, headers } = await supertest(app)
+			.post('/api/v1/users/login')
+			.send({
+				username: 'example',
+				password: 'example',
+			});
+		const cookies = headers['set-cookie'];
+
 		const contact = await ContactTest.get();
 		const response = await supertest(app)
 			.post(`/api/v1/contacts/${contact.id}/addresses`)
-			.set('X-API-TOKEN', 'example')
+			.set('Cookie', cookies)
 			.send({
 				street: 'example street',
 				city: 'example city',
@@ -60,10 +76,18 @@ describe('POST /api/v1/contacts/:contactId/addresses', () => {
 	});
 
 	it('should be reject create new address if contact is not found', async () => {
+		const { body, headers } = await supertest(app)
+			.post('/api/v1/users/login')
+			.send({
+				username: 'example',
+				password: 'example',
+			});
+		const cookies = headers['set-cookie'];
+
 		const contact = await ContactTest.get();
 		const response = await supertest(app)
 			.post(`/api/v1/contacts/${contact.id + 1}/addresses`)
-			.set('X-API-TOKEN', 'example')
+			.set('Cookie', cookies)
 			.send({
 				street: 'example street',
 				city: 'example city',
@@ -92,12 +116,20 @@ describe('GET /api/v1/contacts/:contactId/addresses/:addressId', () => {
 	});
 
 	it('should be able to get address', async () => {
+		const { body, headers } = await supertest(app)
+			.post('/api/v1/users/login')
+			.send({
+				username: 'example',
+				password: 'example',
+			});
+		const cookies = headers['set-cookie'];
+
 		const contact = await ContactTest.get();
 		const address = await AddressTest.get();
 
 		const response = await supertest(app)
 			.get(`/api/v1/contacts/${contact.id}/addresses/${address.id}`)
-			.set('X-API-TOKEN', 'example');
+			.set('Cookie', cookies);
 
 		logger.debug(response.body);
 		expect(response.status).toBe(200);
@@ -113,12 +145,20 @@ describe('GET /api/v1/contacts/:contactId/addresses/:addressId', () => {
 	});
 
 	it('should reject get address if address is not found', async () => {
+		const { body, headers } = await supertest(app)
+			.post('/api/v1/users/login')
+			.send({
+				username: 'example',
+				password: 'example',
+			});
+		const cookies = headers['set-cookie'];
+
 		const contact = await ContactTest.get();
 		const address = await AddressTest.get();
 
 		const response = await supertest(app)
 			.get(`/api/v1/contacts/${contact.id}/addresses/${address.id + 1}`)
-			.set('X-API-TOKEN', 'example');
+			.set('Cookie', cookies);
 
 		logger.debug(response.body);
 		expect(response.status).toBe(404);
@@ -126,12 +166,20 @@ describe('GET /api/v1/contacts/:contactId/addresses/:addressId', () => {
 	});
 
 	it('should reject get address if contact is not found', async () => {
+		const { body, headers } = await supertest(app)
+			.post('/api/v1/users/login')
+			.send({
+				username: 'example',
+				password: 'example',
+			});
+		const cookies = headers['set-cookie'];
+
 		const contact = await ContactTest.get();
 		const address = await AddressTest.get();
 
 		const response = await supertest(app)
 			.get(`/api/v1/contacts/${contact.id + 1}/addresses/${address.id}`)
-			.set('X-API-TOKEN', 'example');
+			.set('Cookie', cookies);
 
 		logger.debug(response.body);
 		expect(response.status).toBe(404);
@@ -153,12 +201,20 @@ describe('PUT api/v1/contacts/:contactId/addresses/:addressId', () => {
 	});
 
 	it('should be able to update address', async () => {
+		const { body, headers } = await supertest(app)
+			.post('/api/v1/users/login')
+			.send({
+				username: 'example',
+				password: 'example',
+			});
+		const cookies = headers['set-cookie'];
+
 		const contact = await ContactTest.get();
 		const address = await AddressTest.get();
 
 		const response = await supertest(app)
 			.put(`/api/v1/contacts/${contact.id}/addresses/${address.id}`)
-			.set('X-API-TOKEN', 'example')
+			.set('Cookie', cookies)
 			.send({
 				street: 'example street',
 				city: 'example city',
@@ -181,12 +237,20 @@ describe('PUT api/v1/contacts/:contactId/addresses/:addressId', () => {
 	});
 
 	it('should reject update address if data is invalid', async () => {
+		const { body, headers } = await supertest(app)
+			.post('/api/v1/users/login')
+			.send({
+				username: 'example',
+				password: 'example',
+			});
+		const cookies = headers['set-cookie'];
+
 		const contact = await ContactTest.get();
 		const address = await AddressTest.get();
 
 		const response = await supertest(app)
 			.put(`/api/v1/contacts/${contact.id}/addresses/${address.id}`)
-			.set('X-API-TOKEN', 'example')
+			.set('Cookie', cookies)
 			.send({
 				street: 'example street',
 				city: 'example city',
@@ -201,12 +265,20 @@ describe('PUT api/v1/contacts/:contactId/addresses/:addressId', () => {
 	});
 
 	it('should reject update address if address is not found', async () => {
+		const { body, headers } = await supertest(app)
+			.post('/api/v1/users/login')
+			.send({
+				username: 'example',
+				password: 'example',
+			});
+		const cookies = headers['set-cookie'];
+
 		const contact = await ContactTest.get();
 		const address = await AddressTest.get();
 
 		const response = await supertest(app)
 			.put(`/api/v1/contacts/${contact.id}/addresses/${address.id + 1}`)
-			.set('X-API-TOKEN', 'example')
+			.set('Cookie', cookies)
 			.send({
 				street: 'example street',
 				city: 'example city',
@@ -221,12 +293,20 @@ describe('PUT api/v1/contacts/:contactId/addresses/:addressId', () => {
 	});
 
 	it('should reject update address if contact is not found', async () => {
+		const { body, headers } = await supertest(app)
+			.post('/api/v1/users/login')
+			.send({
+				username: 'example',
+				password: 'example',
+			});
+		const cookies = headers['set-cookie'];
+
 		const contact = await ContactTest.get();
 		const address = await AddressTest.get();
 
 		const response = await supertest(app)
 			.put(`/api/v1/contacts/${contact.id + 1}/addresses/${address.id}`)
-			.set('X-API-TOKEN', 'example')
+			.set('Cookie', cookies)
 			.send({
 				street: 'example street',
 				city: 'example city',
@@ -255,12 +335,20 @@ describe('DELETE /api/v1/contacts/:contactId/addresses/:addressId', () => {
 	});
 
 	it('should be able to remove address', async () => {
+		const { body, headers } = await supertest(app)
+			.post('/api/v1/users/login')
+			.send({
+				username: 'example',
+				password: 'example',
+			});
+		const cookies = headers['set-cookie'];
+
 		const contact = await ContactTest.get();
 		const address = await AddressTest.get();
 
 		const response = await supertest(app)
 			.delete(`/api/v1/contacts/${contact.id}/addresses/${address.id}`)
-			.set('X-API-TOKEN', 'example');
+			.set('Cookie', cookies);
 
 		logger.debug(response.body);
 		expect(response.status).toBe(200);
@@ -270,12 +358,20 @@ describe('DELETE /api/v1/contacts/:contactId/addresses/:addressId', () => {
 	});
 
 	it('should reject remove address if address is not found', async () => {
+		const { body, headers } = await supertest(app)
+			.post('/api/v1/users/login')
+			.send({
+				username: 'example',
+				password: 'example',
+			});
+		const cookies = headers['set-cookie'];
+
 		const contact = await ContactTest.get();
 		const address = await AddressTest.get();
 
 		const response = await supertest(app)
 			.delete(`/api/v1/contacts/${contact.id}/addresses/${address.id + 1}`)
-			.set('X-API-TOKEN', 'example');
+			.set('Cookie', cookies);
 
 		logger.debug(response.body);
 		expect(response.status).toBe(404);
@@ -283,12 +379,20 @@ describe('DELETE /api/v1/contacts/:contactId/addresses/:addressId', () => {
 	});
 
 	it('should breject remove address if contact is not found ', async () => {
+		const { body, headers } = await supertest(app)
+			.post('/api/v1/users/login')
+			.send({
+				username: 'example',
+				password: 'example',
+			});
+		const cookies = headers['set-cookie'];
+
 		const contact = await ContactTest.get();
 		const address = await AddressTest.get();
 
 		const response = await supertest(app)
 			.delete(`/api/v1/contacts/${contact.id + 1}/addresses/${address.id}`)
-			.set('X-API-TOKEN', 'example');
+			.set('Cookie', cookies);
 
 		logger.debug(response.body);
 		expect(response.status).toBe(404);
@@ -310,11 +414,19 @@ describe('GET /api/v1/contacts/:contactId/addresses', () => {
 	});
 
 	it('should be able to list addresses', async () => {
+		const { body, headers } = await supertest(app)
+			.post('/api/v1/users/login')
+			.send({
+				username: 'example',
+				password: 'example',
+			});
+		const cookies = headers['set-cookie'];
+
 		const contact = await ContactTest.get();
 
 		const response = await supertest(app)
 			.get(`/api/v1/contacts/${contact.id}/addresses`)
-			.set('X-API-TOKEN', 'example');
+			.set('Cookie', cookies);
 
 		logger.debug(response.body);
 		expect(response.status).toBe(200);
@@ -325,11 +437,19 @@ describe('GET /api/v1/contacts/:contactId/addresses', () => {
 	});
 
 	it('should reject list address if contact is not found', async () => {
+		const { body, headers } = await supertest(app)
+			.post('/api/v1/users/login')
+			.send({
+				username: 'example',
+				password: 'example',
+			});
+		const cookies = headers['set-cookie'];
+
 		const contact = await ContactTest.get();
 
 		const response = await supertest(app)
 			.get(`/api/v1/contacts/${contact.id + 1}/addresses`)
-			.set('X-API-TOKEN', 'example');
+			.set('Cookie', cookies);
 
 		logger.debug(response.body);
 		expect(response.status).toBe(404);

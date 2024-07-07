@@ -15,9 +15,17 @@ describe('POST /api/v1/contacts', () => {
 	});
 
 	it('should create new contact', async () => {
+		const { body, headers } = await supertest(app)
+			.post('/api/v1/users/login')
+			.send({
+				username: 'example',
+				password: 'example',
+			});
+		const cookies = headers['set-cookie'];
+
 		const response = await supertest(app)
 			.post('/api/v1/contacts')
-			.set('X-API-TOKEN', 'example')
+			.set('Cookie', cookies)
 			.send({
 				firstName: 'oreo',
 				lastName: 'ataya',
@@ -34,9 +42,17 @@ describe('POST /api/v1/contacts', () => {
 	});
 
 	it('should reject create new contact if data is invalid', async () => {
+		const { body, headers } = await supertest(app)
+			.post('/api/v1/users/login')
+			.send({
+				username: 'example',
+				password: 'example',
+			});
+		const cookies = headers['set-cookie'];
+
 		const response = await supertest(app)
 			.post('/api/v1/contacts')
-			.set('X-API-TOKEN', 'example')
+			.set('Cookie', cookies)
 			.send({
 				firstName: '',
 				lastName: '',
@@ -62,10 +78,18 @@ describe('GET /api/v1/contacts/:contactId', () => {
 	});
 
 	it('should be able to get contact by id', async () => {
+		const { body, headers } = await supertest(app)
+			.post('/api/v1/users/login')
+			.send({
+				username: 'example',
+				password: 'example',
+			});
+		const cookies = headers['set-cookie'];
+
 		const contact = await ContactTest.get();
 		const response = await supertest(app)
 			.get(`/api/v1/contacts/${contact.id}`)
-			.set('X-API-TOKEN', 'example');
+			.set('Cookie', cookies);
 
 		logger.debug(response.body);
 		expect(response.status).toBe(200);
@@ -77,10 +101,18 @@ describe('GET /api/v1/contacts/:contactId', () => {
 	});
 
 	it('should reject get contact if contact is not found', async () => {
+		const { body, headers } = await supertest(app)
+			.post('/api/v1/users/login')
+			.send({
+				username: 'example',
+				password: 'example',
+			});
+		const cookies = headers['set-cookie'];
+
 		const contact = await ContactTest.get();
 		const response = await supertest(app)
 			.get(`/api/v1/contacts/${contact.id + 1}`)
-			.set('X-API-TOKEN', 'example');
+			.set('Cookie', cookies);
 
 		logger.debug(response.body);
 		expect(response.status).toBe(404);
@@ -100,10 +132,18 @@ describe('PUT /api/v1/contacts/:contactId', () => {
 	});
 
 	it('should be able to update contact by id', async () => {
+		const { body, headers } = await supertest(app)
+			.post('/api/v1/users/login')
+			.send({
+				username: 'example',
+				password: 'example',
+			});
+		const cookies = headers['set-cookie'];
+
 		const contact = await ContactTest.get();
 		const response = await supertest(app)
 			.put(`/api/v1/contacts/${contact.id}`)
-			.set('X-API-TOKEN', 'example')
+			.set('Cookie', cookies)
 			.send({
 				firstName: 'example',
 				lastName: 'example',
@@ -121,10 +161,18 @@ describe('PUT /api/v1/contacts/:contactId', () => {
 	});
 
 	it('should reject update contact if request is invalid', async () => {
+		const { body, headers } = await supertest(app)
+			.post('/api/v1/users/login')
+			.send({
+				username: 'example',
+				password: 'example',
+			});
+		const cookies = headers['set-cookie'];
+
 		const contact = await ContactTest.get();
 		const response = await supertest(app)
 			.put(`/api/v1/contacts/${contact.id}`)
-			.set('X-API-TOKEN', 'example')
+			.set('Cookie', cookies)
 			.send({
 				firstName: '',
 				lastName: '',
@@ -150,10 +198,18 @@ describe('DELETE /api/v1/contacts/:contactId', () => {
 	});
 
 	it('should be able to delete contact by id', async () => {
+		const { body, headers } = await supertest(app)
+			.post('/api/v1/users/login')
+			.send({
+				username: 'example',
+				password: 'example',
+			});
+		const cookies = headers['set-cookie'];
+
 		const contact = await ContactTest.get();
 		const response = await supertest(app)
 			.delete(`/api/v1/contacts/${contact.id}`)
-			.set('X-API-TOKEN', 'example')
+			.set('Cookie', cookies)
 			.send({
 				code: 200,
 				status: 'success',
@@ -168,10 +224,18 @@ describe('DELETE /api/v1/contacts/:contactId', () => {
 	});
 
 	it('should reject to delete contact if contact is not found', async () => {
+		const { body, headers } = await supertest(app)
+			.post('/api/v1/users/login')
+			.send({
+				username: 'example',
+				password: 'example',
+			});
+		const cookies = headers['set-cookie'];
+
 		const contact = await ContactTest.get();
 		const response = await supertest(app)
 			.delete(`/api/v1/contacts/${contact.id + 1}`)
-			.set('X-API-TOKEN', 'example');
+			.set('Cookie', cookies);
 
 		logger.debug(response.body);
 		expect(response.status).toBe(404);
@@ -191,9 +255,17 @@ describe('GET /api/v1/contacts', () => {
 	});
 
 	it('should be able to search contacts', async () => {
+		const { body, headers } = await supertest(app)
+			.post('/api/v1/users/login')
+			.send({
+				username: 'example',
+				password: 'example',
+			});
+		const cookies = headers['set-cookie'];
+
 		const response = await supertest(app)
 			.get('/api/v1/contacts')
-			.set('X-API-TOKEN', 'example');
+			.set('Cookie', cookies);
 
 		logger.debug(response.body);
 		expect(response.status).toBe(200);
@@ -207,10 +279,18 @@ describe('GET /api/v1/contacts', () => {
 	});
 
 	it('should be able to search contacts using name', async () => {
+		const { body, headers } = await supertest(app)
+			.post('/api/v1/users/login')
+			.send({
+				username: 'example',
+				password: 'example',
+			});
+		const cookies = headers['set-cookie'];
+
 		const response = await supertest(app)
 			.get('/api/v1/contacts')
 			.query({ name: 'mple' })
-			.set('X-API-TOKEN', 'example');
+			.set('Cookie', cookies);
 
 		logger.debug(response.body);
 		expect(response.status).toBe(200);
@@ -224,10 +304,18 @@ describe('GET /api/v1/contacts', () => {
 	});
 
 	it('should be able to search contacts using email', async () => {
+		const { body, headers } = await supertest(app)
+			.post('/api/v1/users/login')
+			.send({
+				username: 'example',
+				password: 'example',
+			});
+		const cookies = headers['set-cookie'];
+
 		const response = await supertest(app)
 			.get('/api/v1/contacts')
 			.query({ email: 'example@example.com' })
-			.set('X-API-TOKEN', 'example');
+			.set('Cookie', cookies);
 
 		logger.debug(response.body);
 		expect(response.status).toBe(200);
@@ -241,10 +329,18 @@ describe('GET /api/v1/contacts', () => {
 	});
 
 	it('should be able to search contacts using phone', async () => {
+		const { body, headers } = await supertest(app)
+			.post('/api/v1/users/login')
+			.send({
+				username: 'example',
+				password: 'example',
+			});
+		const cookies = headers['set-cookie'];
+
 		const response = await supertest(app)
 			.get('/api/v1/contacts')
 			.query({ phone: '78' })
-			.set('X-API-TOKEN', 'example');
+			.set('Cookie', cookies);
 
 		logger.debug(response.body);
 		expect(response.status).toBe(200);
@@ -258,10 +354,18 @@ describe('GET /api/v1/contacts', () => {
 	});
 
 	it('should be able to search contact no result', async () => {
+		const { body, headers } = await supertest(app)
+			.post('/api/v1/users/login')
+			.send({
+				username: 'example',
+				password: 'example',
+			});
+		const cookies = headers['set-cookie'];
+
 		const response = await supertest(app)
 			.get('/api/v1/contacts')
 			.query({ name: 'wrongExample' })
-			.set('X-API-TOKEN', 'example');
+			.set('Cookie', cookies);
 
 		logger.debug(response.body);
 		expect(response.status).toBe(200);
@@ -275,10 +379,18 @@ describe('GET /api/v1/contacts', () => {
 	});
 
 	it('should be able to search contact with paging', async () => {
+		const { body, headers } = await supertest(app)
+			.post('/api/v1/users/login')
+			.send({
+				username: 'example',
+				password: 'example',
+			});
+		const cookies = headers['set-cookie'];
+
 		const response = await supertest(app)
 			.get('/api/v1/contacts')
 			.query({ page: 2, size: 1 })
-			.set('X-API-TOKEN', 'example');
+			.set('Cookie', cookies);
 
 		logger.debug(response.body);
 		expect(response.status).toBe(200);

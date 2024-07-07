@@ -3,6 +3,7 @@ import { app } from '../src/application/app';
 import { logger } from '../src/application/logging';
 import { UserTest } from './test-util';
 import bycript from 'bcrypt';
+import { createJWT } from '../src/utils/jwt';
 
 describe('POST /api/v1/users/register', () => {
 	afterEach(async () => {
@@ -49,11 +50,14 @@ describe('POST /api/v1/users/login', () => {
 			password: 'example',
 		});
 
-		logger.debug(response.body);
+		// console.log(response.body);
+		// console.log(response.headers);
+
 		expect(response.status).toBe(200);
 		expect(response.body.data.username).toBe('example');
 		expect(response.body.data.name).toBe('example');
-		expect(response.body.data.token).toBeDefined();
+		expect(response.body.data.accessToken).toBeDefined();
+		expect(response.body.data.refreshToken).toBeDefined();
 	});
 
 	it('should reject login user if username is wrong', async () => {
@@ -89,11 +93,26 @@ describe('GET /api/v1/users/current', () => {
 	});
 
 	it('should be able to get current user', async () => {
+		const { body, headers } = await supertest(app)
+			.post('/api/v1/users/login')
+			.send({
+				username: 'example',
+				password: 'example',
+			});
+		const cookies = headers['set-cookie'];
+
+		// check response and cookies
+		// console.log(body.data.accessToken);
+		// console.log(body.data.refreshToken);
+		// console.log(headers);
+
 		const response = await supertest(app)
 			.get('/api/v1/users/current')
-			.set('X-API-TOKEN', 'example');
+			.set('Cookie', cookies);
 
 		logger.debug(response.body);
+		// debug response
+		// console.log(response.body);
 		expect(response.status).toBe(200);
 		expect(response.body.data.username).toBe('example');
 		expect(response.body.data.name).toBe('example');
@@ -120,9 +139,17 @@ describe('PATCH /api/v1/users/current', () => {
 	});
 
 	it('should reject update user if request is invalid', async () => {
+		const { body, headers } = await supertest(app)
+			.post('/api/v1/users/login')
+			.send({
+				username: 'example',
+				password: 'example',
+			});
+		const cookies = headers['set-cookie'];
+
 		const response = await supertest(app)
 			.patch('/api/v1/users/current')
-			.set('X-API-TOKEN', 'example')
+			.set('Cookie', cookies)
 			.send({
 				name: '',
 				password: '',
@@ -134,9 +161,17 @@ describe('PATCH /api/v1/users/current', () => {
 	});
 
 	it('should reject update user if request token is wrong', async () => {
+		const { body, headers } = await supertest(app)
+			.post('/api/v1/users/login')
+			.send({
+				username: 'example',
+				password: 'example',
+			});
+		const cookies = headers['set-cookie'];
+
 		const response = await supertest(app)
 			.patch('/api/v1/users/current')
-			.set('X-API-TOKEN', 'wrongtoken')
+			.set('Cookie', 'wrongtoken')
 			.send({
 				name: 'example',
 				password: 'example',
@@ -148,9 +183,17 @@ describe('PATCH /api/v1/users/current', () => {
 	});
 
 	it('should be able to be update username', async () => {
+		const { body, headers } = await supertest(app)
+			.post('/api/v1/users/login')
+			.send({
+				username: 'example',
+				password: 'example',
+			});
+		const cookies = headers['set-cookie'];
+
 		const response = await supertest(app)
 			.patch('/api/v1/users/current')
-			.set('X-API-TOKEN', 'example')
+			.set('Cookie', cookies)
 			.send({
 				name: 'example',
 			});
@@ -161,9 +204,17 @@ describe('PATCH /api/v1/users/current', () => {
 	});
 
 	it('should be able to be update password', async () => {
+		const { body, headers } = await supertest(app)
+			.post('/api/v1/users/login')
+			.send({
+				username: 'example',
+				password: 'example',
+			});
+		const cookies = headers['set-cookie'];
+
 		const response = await supertest(app)
 			.patch('/api/v1/users/current')
-			.set('X-API-TOKEN', 'example')
+			.set('Cookie', cookies)
 			.send({
 				password: 'exampleTest',
 			});
@@ -186,22 +237,38 @@ describe('DELETE /api/v1/users/current', () => {
 	});
 
 	it('should be able to logout', async () => {
+		const { body, headers } = await supertest(app)
+			.post('/api/v1/users/login')
+			.send({
+				username: 'example',
+				password: 'example',
+			});
+		const cookies = headers['set-cookie'];
+
 		const response = await supertest(app)
 			.delete('/api/v1/users/current')
-			.set('X-API-TOKEN', 'example');
+			.set('Cookie', cookies);
 
 		logger.debug(response.body);
 		expect(response.status).toBe(200);
 		expect(response.body.data).toBe('Logout Success');
 
 		const user = await UserTest.getDataUser();
-		expect(user.token).toBeNull();
+		expect(user.accessToken).toBeNull();
 	});
 
 	it('should reject logout user if token is wrong', async () => {
+		const { body, headers } = await supertest(app)
+			.post('/api/v1/users/login')
+			.send({
+				username: 'example',
+				password: 'example',
+			});
+		const cookies = headers['set-cookie'];
+
 		const response = await supertest(app)
 			.delete('/api/v1/users/current')
-			.set('X-API-TOKEN', 'wrongtoken');
+			.set('Cookie', 'wrongtoken');
 
 		logger.debug(response.body);
 		expect(response.status).toBe(401);

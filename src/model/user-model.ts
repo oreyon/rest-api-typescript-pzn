@@ -3,7 +3,8 @@ import { User } from '@prisma/client';
 export type UserResponse = {
 	username: string;
 	name: string;
-	token?: string;
+	accessToken?: string;
+	refreshToken?: string;
 };
 
 export type CreateUserRequest = {

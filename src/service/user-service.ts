@@ -11,8 +11,10 @@ import { prismaClient } from '../application/database';
 import { ResponseError } from '../error/response-error';
 import bcrypt from 'bcrypt';
 import { v4 as uuid } from 'uuid';
-import { response } from 'express';
 import { User } from '@prisma/client';
+import { createJWT } from '../utils/jwt';
+import { createLogger } from 'winston';
+
 export class UserService {
 	static async register(request: CreateUserRequest): Promise<UserResponse> {
 		// Validate the request using the UserValidation.REGISTER schema
@@ -66,21 +68,43 @@ export class UserService {
 			throw new ResponseError(401, 'Username or password is wrong');
 		}
 
+		// Create JWT token
+		// const token = createJWT({ username: user.username });
+
+		// Create access and refresh tokens
+		const accessToken = createJWT({ username: user.name });
+		const refreshToken = createJWT({ username: user.name + uuid() });
+
+		// Update user token
 		user = await prismaClient.user.update({
 			where: {
 				username: loginRequest.username,
 			},
 			data: {
-				token: uuid(),
+				// token: token,
+				accessToken: accessToken,
+				// refreshToken: refreshToken,
 			},
 		});
 
 		const response = toUserResponse(user);
-		response.token = user.token!;
+		// response.token = user.token!;
+
+		response.accessToken = accessToken;
+		response.refreshToken = refreshToken;
+		console.log(response);
+		console.log(`reponse from login service`);
+
 		return response;
 	}
 
 	static async getCurrentUser(user: User): Promise<UserResponse> {
+		// check access token user
+		if (!user.accessToken) {
+			throw new ResponseError(401, 'Access token is missing');
+		}
+		console.log(user);
+
 		return toUserResponse(user);
 	}
 
@@ -97,8 +121,15 @@ export class UserService {
 		}
 
 		// check if the password is provided
+		let passwordUpdated = false;
 		if (updateRequest.password) {
 			user.password = await bcrypt.hash(updateRequest.password, 10);
+			passwordUpdated = true;
+		}
+
+		// if the password updated value true, then we remove the token
+		if (passwordUpdated) {
+			user.accessToken = null;
 		}
 
 		// update the user
@@ -108,6 +139,8 @@ export class UserService {
 			},
 			data: user,
 		});
+
+		console.log(result);
 
 		// will be remove redline under Promise<UserResponse>
 		return toUserResponse(result);
@@ -119,7 +152,8 @@ export class UserService {
 				username: user.username,
 			},
 			data: {
-				token: null,
+				accessToken: null,
+				// refreshToken: null,
 			},
 		});
 

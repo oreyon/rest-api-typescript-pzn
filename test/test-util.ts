@@ -1,6 +1,7 @@
 import { Address, Contact, User } from '@prisma/client';
 import { prismaClient } from '../src/application/database';
 import bycrypt from 'bcrypt';
+import { createJWT } from '../src/utils/jwt';
 
 export class UserTest {
 	static async delete() {
@@ -17,7 +18,8 @@ export class UserTest {
 				username: 'example',
 				password: await bycrypt.hash('example', 10),
 				name: 'example',
-				token: 'example',
+				// accessToken: createJWT({ username: 'example' }, '1h'),
+				// refreshToken: createJWT({ username: 'example' }, '30d'),
 			},
 		});
 	}
