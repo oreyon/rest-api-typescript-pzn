@@ -1,0 +1,39 @@
+version: '3.9'
+services:
+  mysqldb:
+    image: mysql:8.0
+    container_name: mysqlcontainer
+    restart: unless-stopped
+    volumes:
+      - dbdata:/var/lib/mysql
+    ports:
+      - ${DB_PORT}:3306
+    environment:
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+    networks:
+      - app-network
+
+  backend:
+    container_name: restapicontainer
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    image: e-typescript-api-dev:1.0
+    restart: unless-stopped
+    working_dir: /app
+    env_file: .env.production
+    ports:
+      - 9000:5000
+    networks:
+      - app-network
+    depends_on:
+      - mysqldb
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  dbdata:
+    driver: local

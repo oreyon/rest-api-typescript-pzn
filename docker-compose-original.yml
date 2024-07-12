@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  app:
+    image: e-commerce-api:1.0
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - .:/app
+    ports:
+      - '9000:5000'
+    networks:
+      - app-network
+    depends_on:
+      - db
+    env_file: .env
+    command: npm run dev
+
+  db:
+    image: mariadb:10.5
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: tipiskrip
+      MYSQL_USER: oreo
+      MYSQL_PASSWORD: root
+      MYSQL_ROOT_HOST: '%' # needs to be enclosed with quotes
+    ports:
+      - 3306:3306
+    volumes:
+      - dbdata:/var/lib/mysql
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  dbdata:
+    driver: local

@@ -1,0 +1,30 @@
+# Use the official Node.js image.
+FROM node:21-alpine
+
+# Create and change to the app directory.
+WORKDIR /app
+
+# Install production dependencies.
+COPY package*.json ./
+RUN npm install
+
+# Copy application code.
+COPY . .
+
+# Copy the entrypoint script
+COPY entrypoint.sh /app/
+
+# Generate the Prisma database client.
+RUN npx prisma generate
+
+# Build the application.
+RUN npm run build
+
+# Expose the port the app runs on.
+EXPOSE 9000
+
+# Use the custom entrypoint script
+ENTRYPOINT ["/app/entrypoint.sh"]
+
+# Run the application.
+CMD ["npm", "run", "start"]
